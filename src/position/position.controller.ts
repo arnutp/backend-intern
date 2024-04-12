@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, HttpCode } from '@nestjs/common';
 import { PositionService } from './position.service';
 import { CreatePositionDto } from './dto/create-position.dto';
 import { UpdatePositionDto } from './dto/update-position.dto';
@@ -11,13 +11,15 @@ export class PositionController {
   constructor(private readonly positionService: PositionService) {}
 
   @Post('/create')
-  create(@Body() createPositionDto: CreatePositionDto) {
-    return this.positionService.create(createPositionDto);
+  @HttpCode(200)
+  create(@Body() payload: CreatePositionDto) {
+    return this.positionService.create(payload);
   }
 
   @Post('/index')
-  findAll(@Body() indexParam: PagedDataQuery<IndexPositionRequest>) {
-    return this.positionService.findAll(indexParam);
+  @HttpCode(200)
+  findAll(@Body() payload: PagedDataQuery<IndexPositionRequest>) {
+    return this.positionService.findAll(payload);
   }
 
   @Get('/getDetail')
@@ -26,13 +28,15 @@ export class PositionController {
   }
 
   @Post('/update')
-  update(@Body() updatePositionDto: UpdatePositionDto) {
-    return this.positionService.update(updatePositionDto);
+  @HttpCode(200)
+  update(@Body() payload: UpdatePositionDto) {
+    return this.positionService.update(payload);
   }
 
   @Post('/delete')
-  remove(@Body() deletePositionDto: DeletePositionDto) {
-    return this.positionService.remove(deletePositionDto.positionId);
+  @HttpCode(200)
+  remove(@Body() payload: DeletePositionDto) {
+    return this.positionService.remove(payload.positionId);
   }
 
   @Get('/getPositionDropdown')

@@ -1,45 +1,39 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, HttpCode } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
-import { CreateEmployeeDto } from './dto/create-employee.dto';
-import { UpdateEmployeeDto } from './dto/update-employee.dto';
+import { CreateEmployeeDto, DeleteEmployeeDto, UpdateEmployeeDto } from './dto';
+import { PagedDataQuery } from 'src/interface/tabular';
+import { IndexEmployeeRequest } from './model';
 
 @Controller('employee')
 export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
 
-  @Post()
-  create(@Body() createEmployeeDto: CreateEmployeeDto) {
-    return this.employeeService.create(createEmployeeDto);
+  @Post('/create')
+  @HttpCode(200)
+  create(@Body() payload: CreateEmployeeDto) {
+    return this.employeeService.create(payload);
   }
 
-  @Get()
-  findAll() {
-    return this.employeeService.findAll();
+  @Post('/index')
+  @HttpCode(200)
+  findAll(@Body() payload: PagedDataQuery<IndexEmployeeRequest>) {
+    return this.employeeService.findAll(payload);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.employeeService.findOne(+id);
+  @Get('/getDetail')
+  findOne(@Query('id') id: string) {
+    return this.employeeService.findOne(id);
   }
 
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateEmployeeDto: UpdateEmployeeDto,
-  ) {
-    return this.employeeService.update(+id, updateEmployeeDto);
+  @Post('/update')
+  @HttpCode(200)
+  update(@Body() payload: UpdateEmployeeDto) {
+    return this.employeeService.update(payload);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.employeeService.remove(+id);
+  @Post('/delete')
+  @HttpCode(200)
+  remove(@Body() payload: DeleteEmployeeDto) {
+    return this.employeeService.remove(payload.employeeId);
   }
 }

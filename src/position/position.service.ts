@@ -15,9 +15,10 @@ export class PositionService {
     private readonly positionRepository: Repository<Position>,
   ) {}
 
-  async create(position: CreatePositionDto) {
+  async create(dto: CreatePositionDto) {
     const result = await this.positionRepository.save({
-      name: position.name,
+      name: dto.name,
+      description: dto.description || null,
       isEnable: 1,
     });
     return result.positionId;
@@ -39,6 +40,7 @@ export class PositionService {
       data: positionList.map<IndexPositionResponse>((item) => ({
         name: item.name,
         positionId: item.positionId,
+        description: item.description || null,
       })),
       rowCount: positionList.length,
       pageIndex: query.pageIndex,
@@ -47,27 +49,38 @@ export class PositionService {
     return result;
   }
 
-  async findOne(positionId: string) {
-    const position = await this.positionRepository.findOneBy({
-      positionId: positionId,
-    });
-    return position;
+  async findOne(id: string) {
+    try {
+      const position = await this.positionRepository.findOneByOrFail({
+        positionId: id,
+        isEnable: 1,
+      });
+      return position;
+    } catch (error) {
+      return error;
+    }
   }
 
-  async update(updatePositionDto: UpdatePositionDto) {
-    const position = await this.positionRepository.findOneBy({
-      positionId: updatePositionDto.positionId,
+  async update(dto: UpdatePositionDto) {
+    const position = await this.positionRepository.findOneByOrFail({
+      positionId: dto.positionId,
+      isEnable: 1,
     });
-    position.name = updatePositionDto.name;
+
+    position.name = dto.name;
+    position.description = dto.description;
+
     const result = await this.positionRepository.save(position);
 
     return result.positionId;
   }
 
-  async remove(positionId: string) {
-    const position = await this.positionRepository.findOneBy({
-      positionId: positionId,
+  async remove(id: string) {
+    const position = await this.positionRepository.findOneByOrFail({
+      positionId: id,
+      isEnable: 1,
     });
+
     position.isEnable = 0;
     const result = await this.positionRepository.save(position);
 
@@ -81,7 +94,7 @@ export class PositionService {
 
     return positionList.map<DropdownModel>((item) => ({
       text: item.name,
-      value: item.name,
+      value: item.positionId,
     }));
   }
 }

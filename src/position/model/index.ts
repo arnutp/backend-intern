@@ -5,4 +5,4 @@ export interface IndexPositionRequest {
 }
 
 export interface IndexPositionResponse
-  extends Pick<Position, 'positionId' | 'name'> {}
+  extends Pick<Position, 'positionId' | 'name' | 'description'> {}

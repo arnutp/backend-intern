@@ -5,13 +5,13 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Team } from './Team';
 import { Position } from './Position';
+import { Team } from './Team';
 
 @Entity('employee')
 export class Employee {
   @PrimaryGeneratedColumn('uuid')
-  @Column('text', { primary: true, name: 'employee_id', unique: true })
+  @Column('varchar', { primary: true, name: 'employee_id', unique: true })
   employeeId: string;
 
   @Column('text', { name: 'firstname' })
@@ -23,17 +23,17 @@ export class Employee {
   @Column('text', { name: 'email' })
   email: string;
 
-  @Column('text', { name: 'gender', nullable: true })
-  gender: string | null;
+  @Column('text', { name: 'date_of_birth' })
+  dateOfBirth: string;
 
   @Column('integer', { name: 'is_enable', nullable: true })
   isEnable: number | null;
 
-  @ManyToOne(() => Team, (team) => team.employees)
-  @JoinColumn([{ name: 'team_id', referencedColumnName: 'teamId' }])
-  team: Team;
-
   @ManyToOne(() => Position, (position) => position.employees)
   @JoinColumn([{ name: 'position_id', referencedColumnName: 'positionId' }])
   position: Position;
+
+  @ManyToOne(() => Team, (team) => team.employees)
+  @JoinColumn([{ name: 'team_id', referencedColumnName: 'teamId' }])
+  team: Team;
 }

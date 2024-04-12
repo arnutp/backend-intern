@@ -4,11 +4,14 @@ import { Employee } from './Employee';
 @Entity('position')
 export class Position {
   @PrimaryGeneratedColumn('uuid')
-  @Column('text', { primary: true, name: 'position_id', unique: true })
+  @Column('varchar', { primary: true, name: 'position_id', unique: true })
   positionId: string;
 
-  @Column('text', { name: 'name', nullable: true })
+  @Column('text', { name: 'name', nullable: true, unique: true })
   name: string | null;
+
+  @Column('text', { name: 'description', nullable: true })
+  description: string | null;
 
   @Column('integer', { name: 'is_enable', nullable: true })
   isEnable: number | null;
