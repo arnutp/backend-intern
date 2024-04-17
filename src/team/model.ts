@@ -1,6 +1,8 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Team } from 'src/entities/Team';
 
-export interface IndexTeamRequest {
+export class IndexTeamRequest {
+  @ApiPropertyOptional()
   text: string;
 }
 

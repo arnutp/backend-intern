@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { CreatePositionDto } from './dto/create-position.dto';
-import { UpdatePositionDto } from './dto/update-position.dto';
+import { CreatePositionDto, UpdatePositionDto } from './dto';
 import { Position } from 'src/entities/Position';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PagedDataQuery, PagedDataResult } from 'src/interface/tabular';
-import { IndexPositionRequest, IndexPositionResponse } from './model';
 import { DropdownModel } from 'src/interface/dropdown';
+import { IndexPositionRequest, IndexPositionResponse } from './model';
 
 @Injectable()
 export class PositionService {

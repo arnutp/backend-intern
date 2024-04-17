@@ -1,6 +1,8 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Position } from 'src/entities/Position';
 
-export interface IndexPositionRequest {
+export class IndexPositionRequest {
+  @ApiPropertyOptional()
   text: string;
 }
 

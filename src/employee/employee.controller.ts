@@ -3,7 +3,9 @@ import { EmployeeService } from './employee.service';
 import { CreateEmployeeDto, DeleteEmployeeDto, UpdateEmployeeDto } from './dto';
 import { PagedDataQuery } from 'src/interface/tabular';
 import { IndexEmployeeRequest } from './model';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Employee')
 @Controller('employee')
 export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}

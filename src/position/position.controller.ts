@@ -1,11 +1,11 @@
 import { Controller, Get, Post, Body, Query, HttpCode } from '@nestjs/common';
 import { PositionService } from './position.service';
-import { CreatePositionDto } from './dto/create-position.dto';
-import { UpdatePositionDto } from './dto/update-position.dto';
-import { DeletePositionDto } from './dto/delete-position.dto';
+import { CreatePositionDto, UpdatePositionDto, DeletePositionDto } from './dto';
 import { PagedDataQuery } from 'src/interface/tabular';
+import { ApiTags } from '@nestjs/swagger';
 import { IndexPositionRequest } from './model';
 
+@ApiTags('Position')
 @Controller('position')
 export class PositionController {
   constructor(private readonly positionService: PositionService) {}
