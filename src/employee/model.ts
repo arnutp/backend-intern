@@ -1,7 +1,15 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Employee } from 'src/entities/Employee';
 
-export interface IndexEmployeeRequest {
-  text: string;
+export class IndexEmployeeRequest {
+  @ApiPropertyOptional()
+  text?: string | null;
+
+  @ApiPropertyOptional()
+  team?: string | null;
+
+  @ApiPropertyOptional()
+  position?: string | null;
 }
 
 export interface IndexEmployeeResponse extends Omit<Employee, 'isEnable'> {}

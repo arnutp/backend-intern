@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreatePositionDto, UpdatePositionDto } from './dto';
 import { Position } from 'src/entities/Position';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { PagedDataQuery, PagedDataResult } from 'src/interface/tabular';
 import { DropdownModel } from 'src/interface/dropdown';
 import { IndexPositionRequest, IndexPositionResponse } from './model';
@@ -26,11 +26,15 @@ export class PositionService {
   async findAll(query: PagedDataQuery<IndexPositionRequest>) {
     const num = query.pageSize * query.pageIndex;
 
+    const _text = query.search.text
+      ? ILike(`%${query.search.text}%`)
+      : undefined;
+
     const positionList = await this.positionRepository.find({
       take: query.pageSize,
       skip: num,
       where: {
-        name: query.search.text,
+        name: _text,
         isEnable: 1,
       },
     });

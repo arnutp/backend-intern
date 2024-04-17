@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateTeamDto, UpdateTeamDto } from './dto';
 import { Team } from 'src/entities/Team';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { PagedDataQuery, PagedDataResult } from 'src/interface/tabular';
 import { IndexTeamRequest, IndexTeamResponse } from './model';
 import { DropdownModel } from 'src/interface/dropdown';
@@ -26,11 +26,15 @@ export class TeamService {
   async findAll(query: PagedDataQuery<IndexTeamRequest>) {
     const num = query.pageSize * query.pageIndex;
 
+    const _text = query.search.text
+      ? ILike(`%${query.search.text}%`)
+      : undefined;
+
     const positionList = await this.teamRepository.find({
       take: query.pageSize,
       skip: num,
       where: {
-        name: query.search.text,
+        name: _text,
         isEnable: 1,
       },
     });
