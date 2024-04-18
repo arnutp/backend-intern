@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateEmployeeDto, UpdateEmployeeDto } from './dto';
 import { Employee } from 'src/entities/Employee';
-import { And, Equal, ILike, IsNull, Like, Or, Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Position } from 'src/entities/Position';
 import { Team } from 'src/entities/Team';
@@ -50,53 +50,49 @@ export class EmployeeService {
     console.log('!  query:', query);
     const num = query.pageSize * query.pageIndex;
 
-    // let position: Position | undefined = undefined;
-
-    // if (query.search.position) {
-    //   position = await this.positionRepository.findOneBy({
-    //     positionId: query.search.position,
-    //     isEnable: 1,
-    //   });
-    // }
-
-    // let team: Team | undefined = undefined;
-
-    // if (query.search.position) {
-    //   team = await this.teamRepository.findOneBy({
-    //     teamId: query.search.team,
-    //     isEnable: 1,
-    //   });
-    // }
-
     const _text = query.search.text
       ? ILike(`%${query.search.text}%`)
       : undefined;
 
-    // const condition =
+    if (query.search.text) {
+    }
     const employeeList = await this.employeeRepository.find({
       take: query.pageSize,
       skip: num,
-      where: {
-        firstname: true || _text,
-        lastname: _text,
-        email: _text,
-        isEnable: 1,
-        team: {
-          teamId: query.search.team,
+      where: [
+        {
+          firstname: _text,
+          isEnable: 1,
+          team: {
+            teamId: query.search.team,
+          },
+          position: {
+            positionId: query.search.position,
+          },
         },
-        position: {
-          positionId: query.search.position,
+        {
+          lastname: _text,
+          isEnable: 1,
+          team: {
+            teamId: query.search.team || undefined,
+          },
+          position: {
+            positionId: query.search.position || undefined,
+          },
         },
-      },
+        {
+          email: _text,
+          isEnable: 1,
+          team: {
+            teamId: query.search.team || undefined,
+          },
+          position: {
+            positionId: query.search.position,
+          },
+        },
+      ],
       loadRelationIds: true,
     });
-
-    const result1 = await this.employeeRepository
-      .createQueryBuilder('employee')
-      .where('employee.isEnable = 1')
-
-      .getMany();
-    console.log('!  result1:', result1);
 
     const result: PagedDataResult<IndexEmployeeResponse> = {
       data: employeeList.map<IndexEmployeeResponse>((item) => ({
