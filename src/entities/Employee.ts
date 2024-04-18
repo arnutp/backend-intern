@@ -3,10 +3,12 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Position } from './Position';
+import { Phone } from './Phone';
 import { Team } from './Team';
+import { Position } from './Position';
 
 @Entity('employee')
 export class Employee {
@@ -29,11 +31,14 @@ export class Employee {
   @Column('integer', { name: 'is_enable', nullable: true })
   isEnable: number | null;
 
-  @ManyToOne(() => Position, (position) => position.employees)
-  @JoinColumn([{ name: 'position_id', referencedColumnName: 'positionId' }])
-  position: Position;
+  @OneToMany(() => Phone, (phone) => phone.employee)
+  phones: Phone[];
 
   @ManyToOne(() => Team, (team) => team.employees)
   @JoinColumn([{ name: 'team_id', referencedColumnName: 'teamId' }])
   team: Team;
+
+  @ManyToOne(() => Position, (position) => position.employees)
+  @JoinColumn([{ name: 'position_id', referencedColumnName: 'positionId' }])
+  position: Position;
 }

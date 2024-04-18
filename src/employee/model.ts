@@ -1,3 +1,4 @@
+import { OmitType } from '@nestjs/mapped-types';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Employee } from 'src/entities/Employee';
 
@@ -12,4 +13,11 @@ export class IndexEmployeeRequest {
   position?: string | null;
 }
 
-export interface IndexEmployeeResponse extends Omit<Employee, 'isEnable'> {}
+export class IndexEmployeeResponse extends OmitType(Employee, [
+  'isEnable',
+  'position',
+  'team',
+]) {
+  positionId: string;
+  teamId: string;
+}

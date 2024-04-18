@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { CreateEmployeeDto, UpdateEmployeeDto } from './dto';
+import { CreateEmployeeDto, GetDetailEmployee, UpdateEmployeeDto } from './dto';
 import { Employee } from 'src/entities/Employee';
-import { ILike, Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Position } from 'src/entities/Position';
 import { Team } from 'src/entities/Team';
 import { PagedDataQuery, PagedDataResult } from 'src/interface/tabular';
 import { IndexEmployeeRequest, IndexEmployeeResponse } from './model';
+import { Phone } from 'src/entities/Phone';
 
 @Injectable()
 export class EmployeeService {
@@ -19,14 +20,17 @@ export class EmployeeService {
 
     @InjectRepository(Team)
     private readonly teamRepository: Repository<Team>,
+
+    @InjectRepository(Phone)
+    private readonly phoneRepository: Repository<Phone>,
   ) {}
 
   async create(dto: CreateEmployeeDto) {
-    const pPosition = this.positionRepository.findOneBy({
+    const position = await this.positionRepository.findOneBy({
       positionId: dto.position,
       isEnable: 1,
     });
-    const pTeam = this.teamRepository.findOneBy({
+    const team = await this.teamRepository.findOneBy({
       teamId: dto.team,
       isEnable: 1,
     });
@@ -37,23 +41,40 @@ export class EmployeeService {
       lastname: dto.lastname,
       email: dto.email,
       dateOfBirth: dto.dateOfBirth,
-      position: await pPosition,
-      team: await pTeam,
+      position: position,
+      team: team,
+      phones: [],
       isEnable: 1,
     };
 
     const result = await this.employeeRepository.save(orm);
+
+    dto.phones.forEach(async (item) => {
+      await this.phoneRepository.save({
+        employee: result,
+        phoneNumber: item.phoneNumber,
+      });
+    });
+
     return result.employeeId;
   }
 
   async findAll(query: PagedDataQuery<IndexEmployeeRequest>) {
-    console.log('!  query:', query);
     const num = query.pageSize * query.pageIndex;
 
     const _text = query.search.text
       ? ILike(`%${query.search.text}%`)
       : undefined;
 
+    const and: FindOptionsWhere<Employee> = {
+      isEnable: 1,
+      team: {
+        teamId: query.search.team,
+      },
+      position: {
+        positionId: query.search.position,
+      },
+    };
     if (query.search.text) {
     }
     const employeeList = await this.employeeRepository.find({
@@ -62,42 +83,30 @@ export class EmployeeService {
       where: [
         {
           firstname: _text,
-          isEnable: 1,
-          team: {
-            teamId: query.search.team,
-          },
-          position: {
-            positionId: query.search.position,
-          },
+          ...and,
         },
         {
           lastname: _text,
-          isEnable: 1,
-          team: {
-            teamId: query.search.team || undefined,
-          },
-          position: {
-            positionId: query.search.position || undefined,
-          },
+          ...and,
         },
         {
           email: _text,
-          isEnable: 1,
-          team: {
-            teamId: query.search.team || undefined,
-          },
-          position: {
-            positionId: query.search.position,
-          },
+          ...and,
         },
       ],
-      loadRelationIds: true,
+      relations: ['team', 'position', 'phones'],
     });
 
     const result: PagedDataResult<IndexEmployeeResponse> = {
-      data: employeeList.map<IndexEmployeeResponse>((item) => ({
-        ...item,
-      })),
+      data: employeeList.map<IndexEmployeeResponse>((item) => {
+        const { position, team, ...em } = item;
+
+        return {
+          ...em,
+          positionId: position.positionId,
+          teamId: team.teamId,
+        };
+      }),
       rowCount: employeeList.length,
       pageIndex: query.pageIndex,
       pageSize: query.pageSize,
@@ -111,19 +120,27 @@ export class EmployeeService {
         employeeId: id,
         isEnable: 1,
       },
-      loadRelationIds: true,
+      relations: ['team', 'position', 'phones'],
     });
 
-    return employee || {};
+    const { team, position, phones, ..._emp } = employee;
+    const model: GetDetailEmployee = {
+      ..._emp,
+      phones: phones,
+      teamId: team.teamId,
+      positionId: position.positionId,
+    };
+
+    return model || {};
   }
 
   async update(dto: UpdateEmployeeDto) {
-    const pPosition = this.positionRepository.findOneBy({
+    const position = await this.positionRepository.findOneBy({
       positionId: dto.position,
       isEnable: 1,
     });
 
-    const pTeam = this.teamRepository.findOneBy({
+    const team = await this.teamRepository.findOneBy({
       teamId: dto.team,
       isEnable: 1,
     });
@@ -137,10 +154,20 @@ export class EmployeeService {
     orm.lastname = dto.lastname;
     orm.email = dto.email;
     orm.dateOfBirth = dto.dateOfBirth;
-    orm.position = await pPosition;
-    orm.team = await pTeam;
+    orm.position = position;
+    orm.team = team;
 
     const result = await this.employeeRepository.save(orm);
+
+    const phones = await this.phoneRepository.findBy({ employee: orm });
+    await this.phoneRepository.remove(phones);
+
+    dto.phones.forEach(async (item) => {
+      await this.phoneRepository.save({
+        employee: result,
+        phoneNumber: item.phoneNumber,
+      });
+    });
 
     return result.employeeId;
   }

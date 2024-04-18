@@ -1,4 +1,6 @@
+import { OmitType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
+import { Employee } from 'src/entities/Employee';
 
 export class CreateEmployeeDto {
   @ApiProperty()
@@ -18,11 +20,21 @@ export class CreateEmployeeDto {
 
   @ApiProperty()
   team: string;
+
+  @ApiProperty()
+  phones: PhoneModel[];
 }
 
 export class UpdateEmployeeDto extends CreateEmployeeDto {
   @ApiProperty()
   employeeId: string;
+}
+export class PhoneModel {
+  @ApiProperty()
+  phoneId: string;
+
+  @ApiProperty()
+  phoneNumber: string;
 }
 
 export class DeleteEmployeeDto {
@@ -30,11 +42,12 @@ export class DeleteEmployeeDto {
   employeeId: string;
 }
 
-export class GetDetailEmployee {
-  firstname: string;
-  lastname: string;
-  email: string;
-  dateOfBirth: string;
+export class GetDetailEmployee extends OmitType(Employee, [
+  'team',
+  'position',
+  'phones',
+]) {
+  phones: PhoneModel[];
   positionId: string;
   teamId: string;
 }

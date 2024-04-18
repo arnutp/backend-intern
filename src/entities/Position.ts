@@ -7,7 +7,7 @@ export class Position {
   @Column('varchar', { primary: true, name: 'position_id', unique: true })
   positionId: string;
 
-  @Column('text', { name: 'name', nullable: true, unique: true })
+  @Column('text', { name: 'name', nullable: true })
   name: string | null;
 
   @Column('text', { name: 'description', nullable: true })

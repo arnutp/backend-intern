@@ -8,13 +8,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Employee } from './entities/Employee';
 import { Position } from './entities/Position';
 import { Team } from './entities/Team';
+import { Phone } from './entities/Phone';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'sqlite',
       database: './app.sqlite',
-      entities: [Employee, Position, Team],
+      entities: [Employee, Position, Team, Phone],
       synchronize: process.env.NODE_ENV != 'production',
     }),
     EmployeeModule,
